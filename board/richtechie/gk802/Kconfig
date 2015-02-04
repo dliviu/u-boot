@@ -1,0 +1,13 @@
+if TARGET_GK802
+
+config SYS_BOARD
+	default "gk802"
+
+config SYS_VENDOR
+	default "richtechie"
+
+config SYS_CONFIG_NAME
+	string
+	default "gk802"
+
+endif

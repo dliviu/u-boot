@@ -235,6 +235,10 @@ hostprogs-$(CONFIG_ARCH_SUNXI) += mksunxiboot
 hostprogs-$(CONFIG_ARCH_SUNXI) += sunxi-spl-image-builder
 sunxi-spl-image-builder-objs := sunxi-spl-image-builder.o generated/lib/bch.o
 
+hostprogs-$(CONFIG_MX6)  += imxboot
+HOSTCFLAGS_imxboot.o := -pedantic
+HOSTLOADLIBES_imxboot += -lusb-1.0
+
 hostprogs-$(CONFIG_NETCONSOLE) += ncb
 
 hostprogs-$(CONFIG_ARCH_KIRKWOOD) += kwboot

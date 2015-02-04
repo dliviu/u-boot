@@ -224,6 +224,13 @@ config TARGET_GE_B1X5V2
 	select DM_THERMAL
 	select SUPPORT_SPL
 
+config TARGET_GK802
+	bool "gk802"
+	select SUPPORT_SPL
+	select DM
+	select DM_SERIAL
+	select DM_GPIO
+
 config TARGET_GW_VENTANA
 	bool "gw_ventana"
 	depends on MX6QDL
@@ -730,6 +737,7 @@ source "board/gateworks/gw_ventana/Kconfig"
 source "board/kontron/sl-mx6ul/Kconfig"
 source "board/kosagi/novena/Kconfig"
 source "board/softing/vining_2000/Kconfig"
+source "board/richtechie/gk802/Kconfig"
 source "board/liebherr/display5/Kconfig"
 source "board/liebherr/mccmon6/Kconfig"
 source "board/logicpd/imx6/Kconfig"

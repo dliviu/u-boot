@@ -1663,6 +1663,23 @@ void mx6_ddr3_cfg(const struct mx6_ddr_sysinfo *sysinfo,
 
 	/* wait for auto-ZQ calibration to complete */
 	mdelay(1);
+
+	/* dump the calibrated data */
+	debug("MMDC_MPZQHWCTRL = %#lx\n", mmdc0->mpzqhwctrl);
+	debug("MMDC_MPWLDECTRL0 ch 0 = 0x%08x\n", mmdc0->mpwldectrl0);
+	debug("MMDC_MPWLDECTRL0 ch 1 = 0x%08x\n", mmdc0->mpwldectrl1);
+	debug("MMDC_MPDGCTRL0 = 0x%08x\n", mmdc0->mpdgctrl0);
+	debug("MMDC_MPDGCTRL1 = 0x%08x\n", mmdc0->mpdgctrl1);
+	debug("MMDC_MPRDDLCTL = 0x%08x\n", mmdc0->mprddlctl);
+	debug("MMDC_MPWRDLCTL = 0x%08x\n", mmdc0->mpwrdlctl);
+	debug("MMDC_MPRDDQBY0DL = 0x%08x\n", mmdc0->mprddqby0dl);
+	debug("MMDC_MPRDDQBY1DL = 0x%08x\n", mmdc0->mprddqby1dl);
+	if (sysinfo->dsize > 0) {
+		debug("MMDC_MPRDDQBY2DL = 0x%08x\n", mmdc0->mprddqby2dl);
+		debug("MMDC_MPRDDQBY3DL = 0x%08x\n", mmdc0->mprddqby3dl);
+
+	}
+	debug("MMDC_MPODTCTRL = 0x%08x\n", mmdc0->mpodtctrl);
 }
 
 void mmdc_read_calibration(struct mx6_ddr_sysinfo const *sysinfo,
