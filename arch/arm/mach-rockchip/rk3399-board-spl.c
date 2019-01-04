@@ -14,6 +14,8 @@
 #include <debug_uart.h>
 #include <dm.h>
 #include <dm/pinctrl.h>
+#include <environment.h>
+#include <mmc.h>
 #include <ram.h>
 #include <spl.h>
 #include <syscon.h>
@@ -155,6 +157,7 @@ void board_debug_uart_init(void)
 
 void board_init_f(ulong dummy)
 {
+	const u32 GRF_IO_VSEL_GPIO4CD_SHIFT = 3;
 	struct udevice *pinctrl;
 	struct udevice *dev;
 	struct rk3399_pmusgrf_regs *sgrf;
@@ -194,9 +197,16 @@ void board_init_f(ulong dummy)
 	rk_clrsetreg(&sgrf->ddr_rgn_con[16], 0x1ff, 0);
 	rk_clrreg(&sgrf->slv_secure_con4, 0x2000);
 
-	/*  eMMC clock generator: disable the clock multipilier */
+	/*  eMMC clock generator: disable the clock multiplier */
 	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 	rk_clrreg(&grf->emmccore_con[11], 0x0ff);
+
+	/*
+	 * Set bit 3 in GRF_IO_VSEL so PCIE_RST# works (pin GPIO4_C6).
+	 * Linux assumes that PCIE_RST# works out of the box as it probes
+	 * PCIe before loading the iodomain driver.
+	 */
+	rk_setreg(&grf->io_vsel, 1 << GRF_IO_VSEL_GPIO4CD_SHIFT);
 
 	secure_timer_init();
 
@@ -208,7 +218,7 @@ void board_init_f(ulong dummy)
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret) {
-		pr_err("DRAM init failed: %d\n", ret);
+		debug("DRAM init failed: %d\n", ret);
 		return;
 	}
 }
@@ -216,8 +226,41 @@ void board_init_f(ulong dummy)
 #ifdef CONFIG_SPL_LOAD_FIT
 int board_fit_config_name_match(const char *name)
 {
-	/* Just empty function now - can't decide what to choose */
+	struct mmc *mmc;
+	struct udevice *dev;
+	int err;
+
 	debug("%s: %s\n", __func__, name);
+#if CONFIG_IS_ENABLED(DM_MMC)
+	err = uclass_get_device(UCLASS_MMC, 1, &dev);
+	if (err) {
+		debug("unable to get MMC device: %d\n", err);
+		return err;
+	}
+
+	mmc = mmc_get_mmc_dev(dev);
+	if (mmc) {
+		char mmc_name[7] = { 0 };
+
+		sprintf(mmc_name, "%c%c%c%c%c%c", mmc->cid[0] & 0xff,
+			(mmc->cid[1] >> 24), (mmc->cid[1] >> 16) & 0xff,
+			(mmc->cid[1] >> 8) & 0xff, mmc->cid[1] & 0xff,
+			(mmc->cid[2] >> 24) & 0xff);
+		debug("MMC name: %s\n", mmc_name);
+
+		if ((strcmp(name, "firefly-rk3399-plus.dtb") == 0) &&
+		    (strncmp(mmc_name, "BJNB4R", 6) == 0))
+			return 0;
+		if ((strcmp(name, "rk3399-tvbox.dtb") == 0) &&
+		    (strncmp(mmc_name, "BWBD3R", 6) == 0))
+			return 0;
+		if ((strcmp(name, "rk3399-nanopc-t4.dtb") == 0) &&
+		    (strncmp(mmc_name, "AJNB4R", 6) == 0))
+			return 0;
+
+		return 1;
+	}
+#endif
 
 	return 0;
 }

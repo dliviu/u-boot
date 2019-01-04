@@ -7,7 +7,7 @@ config TARGET_EVB_RK3399
 	bool "RK3399 evaluation board"
 	help
 	  RK3399evb is a evaluation board for Rockchp rk3399,
-	  with full function and phisical connectors support like type-C ports,
+	  with full function and physical connectors support like type-C ports,
 	  usb2.0 host ports, LVDS, JTAG, MAC, SDcard, HDMI, USB-2-serial...
 
 config TARGET_PUMA_RK3399
@@ -53,6 +53,15 @@ config TARGET_ROCK960_RK3399
 	   * 2x USB 3.0 type A, 2x USB 2.0 type A (host mode only),
 	     1x USB 3.0 type C OTG
 
+config TARGET_GENERIC_RK3399
+	bool "Generic board based on Rockchip RK3399 design"
+	help
+	  Generic boxes based on Rockchip RK3399 design. Some development boards
+	  (like the Firefly RK3399) and some TV boxes share the same design
+	  decisions and can be supported by changing the device tree used by
+	  SPL and U-Boot. First ones to be supported are R-TV BOX K99 and
+	  Firefly RK3399 Plus.
+
 endchoice
 
 config SYS_SOC
@@ -62,6 +71,7 @@ config SYS_MALLOC_F_LEN
 	default 0x0800
 
 source "board/rockchip/evb_rk3399/Kconfig"
+source "board/rockchip/generic_rk3399/Kconfig"
 source "board/theobroma-systems/puma_rk3399/Kconfig"
 source "board/vamrs/rock960_rk3399/Kconfig"
 
