@@ -342,16 +342,27 @@ static int rockchip_i2c_xfer(struct udevice *bus, struct i2c_msg *msg,
 			     int nmsgs)
 {
 	struct rk_i2c *i2c = dev_get_priv(bus);
+	uint reg_addr = 0, reg_len = 0, i;
 	int ret;
 
 	debug("i2c_xfer: %d messages\n", nmsgs);
+	if (nmsgs >= 2 && msg[0].len < 4 && !(msg[0].flags & I2C_M_RD) &&
+	    (msg[1].flags & I2C_M_RD)) {
+		for (i = 0; i < msg[0].len; i++)
+			reg_addr |= msg[0].buf[i] << (i * 8);
+		reg_len = msg[0].len;
+		/* hardware will handle msg[0] */
+		nmsgs--;
+		msg++;
+	}
 	for (; nmsgs > 0; nmsgs--, msg++) {
-		debug("i2c_xfer: chip=0x%x, len=0x%x\n", msg->addr, msg->len);
+		debug("i2c_xfer: chip=0x%x, len=0x%x, flags=0x%x\n",
+		      msg->addr, msg->len, msg->flags);
 		if (msg->flags & I2C_M_RD) {
-			ret = rk_i2c_read(i2c, msg->addr, 0, 0, msg->buf,
+			ret = rk_i2c_read(i2c, msg->addr, reg_addr, reg_len, msg->buf,
 					  msg->len);
 		} else {
-			ret = rk_i2c_write(i2c, msg->addr, 0, 0, msg->buf,
+			ret = rk_i2c_write(i2c, msg->addr, reg_addr, reg_len, msg->buf,
 					   msg->len);
 		}
 		if (ret) {
