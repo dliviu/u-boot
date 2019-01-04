@@ -26,12 +26,14 @@
  *
  * See http://www.onsemi.com/pub/Collateral/FAN53555-D.pdf for details.
  */
-static const struct {
+struct ic_types {
 	u8 die_id;
 	u8 die_rev;
 	u32 vsel_min;
 	u32 vsel_step;
-} ic_types[] = {
+};
+
+static const struct ic_types fcs_types[] = {
 	{ 0x0, 0x3, 600000, 10000 },  /* Option 00 */
 	{ 0x0, 0xf, 800000, 10000 },  /* Option 13 */
 	{ 0x0, 0xc, 600000, 12500 },  /* Option 23 */
@@ -42,6 +44,8 @@ static const struct {
 	{ 0x8, 0x1, 600000, 10000 },  /* Option 08 */
 	{ 0x8, 0xf, 600000, 10000 },  /* Option 08 */
 	{ 0xc, 0xf, 603000, 12826 },  /* Option 09 */
+}, silergy_types[] = {
+	{ 0x8, 0x1, 712500, 12500 },
 };
 
 /* I2C-accessible byte-sized registers */
@@ -148,18 +152,28 @@ static int fan53555_regulator_set_value(struct udevice *dev, int uV)
 static int fan53555_voltages_setup(struct udevice *dev)
 {
 	struct fan53555_priv *priv = dev_get_priv(dev);
-	int i;
+	const struct ic_types *types;
+	ulong data = dev_get_driver_data(dev);
+	int i, len;
+
+	if (data) {
+		types = silergy_types;
+		len = ARRAY_SIZE(silergy_types);
+	} else {
+		types = fcs_types;
+		len = ARRAY_SIZE(fcs_types);
+	}
 
 	/* Init voltage range and step */
-	for (i = 0; i < ARRAY_SIZE(ic_types); ++i) {
-		if (ic_types[i].die_id != priv->die_id)
+	for (i = 0; i < len; ++i) {
+		if (types[i].die_id != priv->die_id)
 			continue;
 
-		if (ic_types[i].die_rev != priv->die_rev)
+		if (types[i].die_rev != priv->die_rev)
 			continue;
 
-		priv->vsel_min = ic_types[i].vsel_min;
-		priv->vsel_step = ic_types[i].vsel_step;
+		priv->vsel_min = types[i].vsel_min;
+		priv->vsel_step = types[i].vsel_step;
 
 		return 0;
 	}

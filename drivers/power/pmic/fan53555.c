@@ -11,9 +11,14 @@
 #include <power/pmic.h>
 #include <power/regulator.h>
 
+enum fan53555_vendor {
+	FAN53555_VENDOR_FAIRCHILD = 0,
+	FAN53555_VENDOR_SILERGY,
+};
+
 static int pmic_fan53555_reg_count(struct udevice *dev)
 {
-	return 1;
+	return 6;
 };
 
 static int pmic_fan53555_read(struct udevice *dev, uint reg,
@@ -49,6 +54,7 @@ static int pmic_fan53555_bind(struct udevice *dev)
 	const char *regulator_driver_name = "fan53555_regulator";
 	struct udevice *child;
 	struct driver *drv;
+	ulong data = dev_get_driver_data(dev);
 
 	debug("%s\n", __func__);
 
@@ -58,7 +64,7 @@ static int pmic_fan53555_bind(struct udevice *dev)
 		return -ENOENT;
 	}
 
-	return device_bind_with_driver_data(dev, drv, "SW", 0,
+	return device_bind_with_driver_data(dev, drv, "FAN53555", data,
 					    dev_ofnode(dev), &child);
 };
 
@@ -69,7 +75,9 @@ static struct dm_pmic_ops pmic_fan53555_ops = {
 };
 
 static const struct udevice_id pmic_fan53555_match[] = {
-	{ .compatible = "fcs,fan53555" },
+	{ .compatible = "fcs,fan53555", .data = FAN53555_VENDOR_FAIRCHILD },
+	{ .compatible = "silergy,syr827", .data = FAN53555_VENDOR_SILERGY },
+	{ .compatible = "silergy,syr828", .data = FAN53555_VENDOR_SILERGY },
 	{ },
 };
 
