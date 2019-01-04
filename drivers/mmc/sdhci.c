@@ -472,25 +472,19 @@ static int sdhci_set_ios(struct mmc *mmc)
 
 	/* Set bus width */
 	ctrl = sdhci_readb(host, SDHCI_HOST_CONTROL);
+	ctrl &= ~(SDHCI_CTRL_8BITBUS | SDHCI_CTRL_4BITBUS | SDHCI_CTRL_HISPD);
+
 	if (mmc->bus_width == 8) {
-		ctrl &= ~SDHCI_CTRL_4BITBUS;
 		if ((SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) ||
 				(host->quirks & SDHCI_QUIRK_USE_WIDE8))
 			ctrl |= SDHCI_CTRL_8BITBUS;
 	} else {
-		if ((SDHCI_GET_VERSION(host) >= SDHCI_SPEC_300) ||
-				(host->quirks & SDHCI_QUIRK_USE_WIDE8))
-			ctrl &= ~SDHCI_CTRL_8BITBUS;
 		if (mmc->bus_width == 4)
 			ctrl |= SDHCI_CTRL_4BITBUS;
-		else
-			ctrl &= ~SDHCI_CTRL_4BITBUS;
 	}
 
 	if (mmc->clock > 26000000)
 		ctrl |= SDHCI_CTRL_HISPD;
-	else
-		ctrl &= ~SDHCI_CTRL_HISPD;
 
 	if ((host->quirks & SDHCI_QUIRK_NO_HISPD_BIT) ||
 	    (host->quirks & SDHCI_QUIRK_BROKEN_HISPD_MODE))
