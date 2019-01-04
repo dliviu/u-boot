@@ -49,7 +49,7 @@ int arch_cpu_init(void)
 {
 	/* We do some SoC one time setting here. */
 
-	/* Emmc clock generator: disable the clock multipilier */
+	/* Emmc clock generator: disable the clock multiplier */
 	rk_clrreg(GRF_EMMCCORE_CON11, 0x0ff);
 
 	return 0;

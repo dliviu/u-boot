@@ -30,17 +30,17 @@ void back_to_bootrom(enum rockchip_bootrom_cmd brom_cmd)
 }
 
 /*
- * we back to bootrom download mode if get a
+ * we go back to bootrom download mode if we get a
  * BOOT_BROM_DOWNLOAD flag in boot mode register
  *
  * note: the boot mode register is configured by
- * application(next stage bootloader, kernel, etc),
+ * application (next stage bootloader, kernel, etc),
  * and the bootrom never check this register, so we need
- * to check it and back to bootrom at very early bootstage(before
- * some basic configurations(such as interrupts) been
- * changed by TPL/SPL, as the bootrom download operation
- * relys on many default settings(such as interrupts) by
- * it's self.
+ * to check it and go back to bootrom at very early bootstage
+ * before some basic configurations (such as interrupts) have
+ * been changed by TPL/SPL, as the bootrom download operation
+ * relies on many default settings (such as interrupts) by
+ * itself.
  */
 static bool check_back_to_brom_dnl_flag(void)
 {

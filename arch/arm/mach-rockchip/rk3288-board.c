@@ -150,7 +150,7 @@ int board_init(void)
 
 	/*
 	 * We need to implement sdcard iomux here for the further
-	 * initlization, otherwise, it'll hit sdcard command sending
+	 * initialization, otherwise, it'll hit sdcard command sending
 	 * timeout exception.
 	 */
 	ret = uclass_get_device(UCLASS_PINCTRL, 0, &pinctrl);

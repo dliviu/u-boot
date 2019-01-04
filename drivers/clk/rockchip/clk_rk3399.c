@@ -756,7 +756,7 @@ static ulong rk3399_mmc_set_clk(struct rk3399_cru *cru,
 	case HCLK_SDMMC:
 	case SCLK_SDMMC:
 		/* Select clk_sdmmc source from GPLL by default */
-		/* mmc clock defaulg div 2 internal, provide double in cru */
+		/* mmc clock defaults div 2 internal, provide double in cru */
 		src_clk_div = DIV_ROUND_UP(GPLL_HZ / 2, set_rate);
 
 		if (src_clk_div > 128) {
