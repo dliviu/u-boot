@@ -49,10 +49,13 @@ dtb-$(CONFIG_ARCH_ROCKCHIP) += \
 	rk3368-px5-evb.dtb \
 	rk3399-evb.dtb \
 	rk3399-firefly.dtb \
+	rk3399-firefly-plus.dtb \
+	rk3399-nanopc-t4.dtb \
 	rk3399-puma-ddr1333.dtb \
 	rk3399-puma-ddr1600.dtb \
 	rk3399-puma-ddr1866.dtb \
 	rk3399-rock960.dtb \
+	rk3399-tvbox.dtb \
 	rv1108-elgin-r1.dtb \
 	rv1108-evb.dtb
 dtb-$(CONFIG_ARCH_MESON) += \
