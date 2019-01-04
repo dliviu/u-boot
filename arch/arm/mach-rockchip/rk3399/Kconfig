@@ -130,6 +130,15 @@ config TARGET_ROC_PC_RK3399
 	   * wide voltage input(5V-15V), dual cell battery
 	   * Wifi/BT accessible via expansion board M.2
 
+config TARGET_GENERIC_RK3399
+	bool "Generic board based on Rockchip RK3399 design"
+	help
+	  Generic boxes based on Rockchip RK3399 design. Some development boards
+	  (like the Firefly RK3399) and some TV boxes share the same design
+	  decisions and can be supported by changing the device tree used by
+	  SPL and U-Boot. First ones to be supported are R-TV BOX K99 and
+	  Firefly RK3399 Plus.
+
 endchoice
 
 config ROCKCHIP_BOOT_MODE_REG
@@ -167,6 +176,7 @@ source "board/pine64/pinephone-pro-rk3399/Kconfig"
 source "board/pine64/rockpro64_rk3399/Kconfig"
 source "board/radxa/rockpi4-rk3399/Kconfig"
 source "board/rockchip/evb_rk3399/Kconfig"
+source "board/rockchip/generic_rk3399/Kconfig"
 source "board/theobroma-systems/puma_rk3399/Kconfig"
 source "board/vamrs/rock960_rk3399/Kconfig"
 
