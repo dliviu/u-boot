@@ -38,6 +38,23 @@
 	ROCKCHIP_DEVICE_SETTINGS	\
 	"boot_targets=" BOOT_TARGETS "\0"
 
+#undef BOOTENV
+#define BOOTENV \
+	"arch=arm\0" \
+	"baudrate=" __stringify(CONFIG_BAUDRATE) "\0" \
+	"bootcmd=run setbootargs_cmd; ext4load ${boot_media} ${boot_dev}:${boot_part} ${fdt_addr_r} ${bootroot}/dtbs/${vendor}/${soc}-${board}.dtb; " \
+	"ext4load ${boot_media} ${boot_dev}:${boot_part} ${kernel_addr_r} ${bootroot}/Image; booti ${kernel_addr_r} - ${fdt_addr_r}\0" \
+	"bootroot=/boot\0" \
+	"boot_dev=0\0" \
+	"boot_media=mmc\0" \
+	"boot_part=2\0" \
+	"console=ttyS2\0" \
+	"root_dev=mmcblk2\0" \
+	"root_part=p2\0" \
+	"setbootargs_cmd=setenv bootargs \"console=${console},${baudrate}n8 root=/dev/${root_dev}${root_part} rootwait ${extra_params}\0" \
+	"soc=rk3399\0" \
+	"vendor=rockchip\0"
+
 #endif /* CONFIG_XPL_BUILD */
 
 #endif /* __CONFIG_RK3399_COMMON_H */
