@@ -83,6 +83,9 @@ static int rk8xx_probe(struct udevice *dev)
 	rk8xx_read(dev, ID_LSB, &lsb, 1);
 
 	priv->variant = ((msb << 8) | lsb) & RK8XX_ID_MSK;
+	if (priv->variant == RK808_ID)
+		priv->variant = 0x8080;
+	printf("PMIC: RK%x\n", (priv->variant >> 4));
 
 	return 0;
 }
