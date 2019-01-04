@@ -39,7 +39,7 @@ U_BOOT_IMAGE_TYPE(
 	&header,
 	rkcommon_check_params,
 	NULL,
-	NULL,
+	rkcommon_print_header,
 	rkimage_set_header,
 	NULL,
 	rkimage_check_image_type,
