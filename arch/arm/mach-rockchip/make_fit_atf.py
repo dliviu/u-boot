@@ -47,7 +47,7 @@ DT_HEADER="""// SPDX-License-Identifier: GPL-2.0+ OR X11
 """
 
 DT_IMAGES_NODE_END="""
-    };
+	};
 """
 
 DT_END="""
@@ -99,13 +99,13 @@ def append_conf_section(file, cnt, dtname, atf_cnt):
             file.write(',')
         else:
             file.write(';\n')
-    file.write('\t\t\tfdt = "fdt_1";\n')
+    file.write('\t\t\tfdt = "fdt_%d";\n' % cnt)
     file.write('\t\t};\n')
     file.write('\n')
 
 def append_conf_node(file, dtbs, atf_cnt):
     """
-    Append configeration nodes.
+    Append configuration nodes.
     """
     cnt = 1
     file.write('\tconfigurations {\n')
