@@ -101,7 +101,7 @@ int arch_cpu_init(void)
 	rk_clrsetreg(&sgrf->ddr_rgn_con[16], 0x1ff, 0);
 	rk_clrreg(&sgrf->slv_secure_con4, 0x2000);
 
-	/*  eMMC clock generator: disable the clock multipilier */
+	/*  eMMC clock generator: disable the clock multiplier */
 	grf = syscon_get_first_range(ROCKCHIP_SYSCON_GRF);
 	rk_clrreg(&grf->emmccore_con[11], 0x0ff);
 #endif
