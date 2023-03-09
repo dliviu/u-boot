@@ -12,7 +12,9 @@
 #include <dm/device-internal.h>
 #include <dm/lists.h>
 #include <generic-phy.h>
+#include <power/regulator.h>
 #include <regmap.h>
+#include <reset.h>
 #include <syscon.h>
 #include <asm/arch-rockchip/clock.h>
 
@@ -46,6 +48,7 @@ struct rockchip_usb2phy_cfg {
 struct rockchip_usb2phy {
 	struct regmap *reg_base;
 	struct clk phyclk;
+	struct udevice *vbus_supply[USB2PHY_NUM_PORTS];
 	const struct rockchip_usb2phy_cfg *phy_cfg;
 };
 
@@ -92,11 +95,34 @@ struct rockchip_usb2phy_port_cfg *us2phy_get_port(struct phy *phy)
 	return &phy_cfg->port_cfgs[phy->id];
 }
 
+static struct udevice *rockchip_usb2phy_check_vbus(struct phy *phy)
+{
+	struct udevice *parent = phy->dev->parent;
+	struct rockchip_usb2phy *priv = dev_get_priv(parent);
+	struct udevice *vbus = NULL;
+
+	if (phy->id == USB2PHY_PORT_HOST)
+		vbus = priv->vbus_supply[USB2PHY_PORT_HOST];
+
+	return vbus;
+}
+
 static int rockchip_usb2phy_power_on(struct phy *phy)
 {
 	struct udevice *parent = dev_get_parent(phy->dev);
 	struct rockchip_usb2phy *priv = dev_get_priv(parent);
 	const struct rockchip_usb2phy_port_cfg *port_cfg = us2phy_get_port(phy);
+	struct udevice *vbus = NULL;
+	int ret;
+
+	vbus = rockchip_usb2phy_check_vbus(phy);
+	if (vbus) {
+		ret = regulator_set_enable(vbus, true);
+		if (ret) {
+			dev_err(phy->dev, "vbus enable failed: %d\n", ret);
+			return ret;
+		}
+	}
 
 	property_enable(priv->reg_base, &port_cfg->phy_sus, false);
 
@@ -111,6 +137,17 @@ static int rockchip_usb2phy_power_off(struct phy *phy)
 	struct udevice *parent = dev_get_parent(phy->dev);
 	struct rockchip_usb2phy *priv = dev_get_priv(parent);
 	const struct rockchip_usb2phy_port_cfg *port_cfg = us2phy_get_port(phy);
+	struct udevice *vbus = NULL;
+	int ret;
+
+	vbus = rockchip_usb2phy_check_vbus(phy);
+	if (vbus) {
+		ret = regulator_set_enable(vbus, false);
+		if (ret && ret != -EACCES) {
+			dev_info(phy->dev, "vbus disable failed: %d\n", ret);
+			return ret;
+		}
+	}
 
 	property_enable(priv->reg_base, &port_cfg->phy_sus, true);
 
@@ -146,13 +183,20 @@ static int rockchip_usb2phy_of_xlate(struct phy *phy,
 				     struct ofnode_phandle_args *args)
 {
 	const char *name = phy->dev->name;
+	struct udevice *parent = phy->dev->parent;
+	struct rockchip_usb2phy *priv = dev_get_priv(parent);
 
-	if (!strcasecmp(name, "host-port"))
+	if (!strcasecmp(name, "host-port")) {
 		phy->id = USB2PHY_PORT_HOST;
-	else if (!strcasecmp(name, "otg-port"))
+		device_get_supply_regulator(phy->dev, "phy-supply",
+					    &priv->vbus_supply[USB2PHY_PORT_HOST]);
+	} else if (!strcasecmp(name, "otg-port")) {
 		phy->id = USB2PHY_PORT_OTG;
-	else
+		device_get_supply_regulator(phy->dev, "phy-supply",
+					    &priv->vbus_supply[USB2PHY_PORT_OTG]);
+	} else {
 		dev_err(phy->dev, "improper %s device\n", name);
+	}
 
 	return 0;
 }
